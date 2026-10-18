@@ -1,0 +1,27 @@
+# Credentials and local state
+.env
+data/
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+.encryption_key
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Release outputs
+dist/
+build/
+*.zip

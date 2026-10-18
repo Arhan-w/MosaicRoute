@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#090b16">
+  <title>MosaicRoute — Local AI Gateway</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+  <main id="login-screen" class="login-shell hidden">
+    <div class="login-card glass-panel">
+      <div class="brand-mark large"><span class="brand-glyph">M</span></div>
+      <div class="eyebrow">LOCAL AI CONTROL PLANE</div>
+      <h1>One endpoint.<br><span>Every model you use.</span></h1>
+      <p class="muted">Sign in to your private MosaicRoute dashboard. Everything runs on this machine.</p>
+      <form id="login-form" class="stack-form">
+        <label for="password">Dashboard password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your first-run password" required>
+        <button class="button primary full" type="submit">Unlock dashboard <span aria-hidden="true">↗</span></button>
+        <p id="login-error" class="form-error hidden"></p>
+      </form>
+      <div class="login-foot"><span class="status-dot"></span> Local session · 8-hour idle refresh</div>
+    </div>
+    <div class="login-orbit orbit-a"></div><div class="login-orbit orbit-b"></div>
+  </main>
+
+  <div id="app-shell" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark"><span class="brand-glyph">M</span></div><div><strong>MosaicRoute</strong><small>LOCAL GATEWAY</small></div></div>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Main navigation">
+        <button class="nav-item active" data-page="overview"><span class="nav-icon">◫</span>Overview</button>
+        <button class="nav-item" data-page="providers"><span class="nav-icon">⇄</span>Providers <span id="nav-provider-count" class="nav-count">0</span></button>
+        <button class="nav-item" data-page="models"><span class="nav-icon">⌘</span>Models & aliases</button>
+        <button class="nav-item" data-page="playground"><span class="nav-icon">✳</span>Playground</button>
+        <button class="nav-item" data-page="logs"><span class="nav-icon">≋</span>Request logs</button>
+        <button class="nav-item" data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="local-status"><div class="pulse-line"><span class="status-dot"></span><span>Gateway online</span><span class="push-right tiny">LOCAL</span></div><div class="local-url">127.0.0.1:<span id="port-label">8000</span></div></div>
+      <button id="logout-button" class="nav-item logout"><span class="nav-icon">⇥</span>Lock dashboard</button>
+      <div class="sidebar-version">MosaicRoute <span id="version-label">v0.1.0</span></div>
+    </aside>
+
+    <div class="main-column">
+      <header class="topbar">
+        <div><div class="breadcrumb">MOSAICROUTE <span>/</span> <b id="breadcrumb-page">Overview</b></div><h1 id="page-title">Overview</h1></div>
+        <div class="topbar-actions"><div class="local-badge"><span class="status-dot"></span> Running locally</div><button class="icon-button" id="refresh-button" aria-label="Refresh dashboard" title="Refresh">↻</button><div class="avatar">M</div></div>
+      </header>
+
+      <section id="page-overview" class="page active-page">
+        <div class="hero-panel glass-panel">
+          <div class="hero-copy"><div class="eyebrow"><span class="sparkle">✦</span> YOUR PRIVATE AI ROUTER</div><h2>All your models.<br><span>One intelligent gateway.</span></h2><p>Route requests across your own providers, keep fallback chains ready, and watch every request from one local control plane.</p><div class="hero-actions"><button class="button primary" data-goto="providers">+ Add provider</button><button class="button secondary" data-goto="models">Configure routes <span>↗</span></button></div></div>
+          <div class="hero-graphic" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="node node-core"><span>M</span></div><div class="node node-one">◈</div><div class="node node-two">✳</div><div class="node node-three">⌘</div><div class="node node-four">↯</div><div class="orb-label label-one">OPENAI COMPATIBLE</div><div class="orb-label label-two">FALLBACK ROUTES</div></div>
+        </div>
+        <div class="metric-grid">
+          <article class="metric-card"><div class="metric-top"><span>Providers</span><span class="metric-icon purple">⇄</span></div><div class="metric-value" id="stat-providers">—</div><div class="metric-foot"><span class="tiny-dot purple-bg"></span> Connected endpoints</div></article>
+          <article class="metric-card"><div class="metric-top"><span>Model aliases</span><span class="metric-icon blue">⌘</span></div><div class="metric-value" id="stat-aliases">—</div><div class="metric-foot"><span class="tiny-dot blue-bg"></span> Custom route chains</div></article>
+          <article class="metric-card"><div class="metric-top"><span>Requests today</span><span class="metric-icon mint">↗</span></div><div class="metric-value" id="stat-requests">—</div><div class="metric-foot"><span id="stat-success-text">No traffic yet</span></div></article>
+          <article class="metric-card"><div class="metric-top"><span>Tokens today</span><span class="metric-icon amber">✧</span></div><div class="metric-value" id="stat-tokens">—</div><div class="metric-foot"><span id="stat-latency-text">Waiting for first request</span></div></article>
+        </div>
+        <section class="panel telemetry-panel">
+          <div class="section-heading"><div><h3>Routing performance</h3><p>Last 24 hours · observed locally, not benchmark estimates</p></div><span class="tiny-label">LIVE TELEMETRY</span></div>
+          <div class="telemetry-metrics">
+            <div class="telemetry-cell"><span>p50 latency</span><strong id="analytics-p50">—</strong><small>Median successful/failed request time</small></div>
+            <div class="telemetry-cell"><span>p95 latency</span><strong id="analytics-p95">—</strong><small>95th percentile request time</small></div>
+            <div class="telemetry-cell"><span>p99 latency</span><strong id="analytics-p99">—</strong><small>Tail latency</small></div>
+            <div class="telemetry-cell"><span>Success rate</span><strong id="analytics-success">—</strong><small id="analytics-count">No requests yet</small></div>
+          </div>
+          <div class="telemetry-bottom"><strong>Top providers by request volume</strong><div id="analytics-provider-list" class="telemetry-provider-list"><span class="muted">Waiting for request history.</span></div></div>
+        </section>
+        <div class="content-grid">
+          <section class="panel activity-panel"><div class="section-heading"><div><h3>Recent activity</h3><p>Latest requests through your gateway</p></div><button class="text-button" data-goto="logs">View all <span>→</span></button></div><div id="overview-logs" class="table-wrap"><div class="empty-state compact"><div class="empty-symbol">≋</div><strong>No requests yet</strong><span>Make a call from the Playground to see traffic here.</span></div></div></section>
+          <section class="panel setup-panel"><div class="section-heading"><div><h3>Quick setup</h3><p>Three steps to your first response</p></div><span class="setup-pulse">✦</span></div><div class="setup-steps"><button class="setup-step" data-goto="providers"><span class="step-number">01</span><span><strong>Add a provider</strong><small>Bring your own API key or local endpoint</small></span><span class="step-arrow">↗</span></button><button class="setup-step" data-goto="models"><span class="step-number">02</span><span><strong>Create a model alias</strong><small>Pick a model and optional fallbacks</small></span><span class="step-arrow">↗</span></button><button class="setup-step" data-goto="playground"><span class="step-number">03</span><span><strong>Send a test prompt</strong><small>Verify your end-to-end routing</small></span><span class="step-arrow">↗</span></button></div><div class="notice"><span>i</span><p>MosaicRoute stores request metadata, not prompt contents, by default. Provider calls still go to the upstream endpoint you configure.</p></div></section>
+        </div>
+      </section>
+
+      <section id="page-providers" class="page">
+        <div class="page-intro"><div><h2>Your provider connections</h2><p>Use official API keys or connect a local OpenAI-compatible server.</p></div><button class="button primary" id="add-provider-button">+ Add provider</button></div>
+        <div id="providers-list" class="providers-grid"><div class="loading-state">Loading provider connections…</div></div>
+        <div class="info-strip"><span class="info-icon">⌂</span><div><strong>Local-first, by design</strong><p>Provider credentials are encrypted in your local SQLite-backed data directory. Never upload your <code>.env</code> or <code>data/</code> folder to GitHub.</p></div></div>
+      </section>
+
+      <section id="page-models" class="page">
+        <div class="page-intro"><div><h2>Model aliases & fallback chains</h2><p>Give your tools a stable model name, then change the upstream route whenever you need.</p></div><button class="button primary" id="add-route-button">+ Create alias</button></div>
+        <div class="route-tip"><span class="tip-icon">↯</span><div><strong>Fallbacks run in order</strong><p>When a candidate fails with a transient error (such as HTTP 429 or 503), MosaicRoute tries the next compatible candidate. Provider cooldowns reduce repeated calls to unhealthy endpoints.</p></div></div>
+        <section class="panel discovery-panel"><div class="section-heading"><div><h3>Automatic model discovery</h3><p>Fetch the model catalogs exposed by your configured providers. Models appear as callable IDs and can be turned into aliases.</p></div><span class="tiny-label">LIVE CATALOG</span></div><div class="discovery-toolbar"><button id="discover-all-button" class="button primary">↻ Discover all providers</button><button id="create-auto-routes-button" class="button secondary">✦ Build smart aliases</button><input id="discovery-search" class="discovery-search" type="search" placeholder="Search discovered models…" aria-label="Search discovered models"></div><p id="discovery-status" class="field-hint">Model catalogs have not been refreshed yet. Provider model-list endpoints and authentication vary.</p><div id="discovered-models-list" class="table-wrap"><div class="empty-state compact"><div class="empty-symbol">⌕</div><strong>No discovered models yet</strong><span>Add a provider, then run discovery.</span></div></div></section>
+        <div id="routes-list" class="routes-list"><div class="loading-state">Loading model aliases…</div></div>
+      </section>
+
+      <section id="page-playground" class="page">
+        <div class="page-intro"><div><h2>Playground</h2><p>Send a real request through your local route and inspect the response.</p></div><span class="protocol-chip">POST /v1/chat/completions</span></div>
+        <div class="playground-layout"><section class="panel playground-form"><div class="section-heading"><div><h3>Compose request</h3><p>Uses your configured model alias.</p></div><span class="tiny-label">LIVE ROUTING</span></div><form id="playground-form" class="stack-form"><label for="playground-model">Model alias</label><select id="playground-model" required><option value="">Create a model alias first</option></select><label for="playground-prompt">Your prompt</label><textarea id="playground-prompt" rows="8" required placeholder="Ask a question, request code, or test provider behavior…">Explain what an API gateway does in three concise bullet points.</textarea><div class="form-row"><label class="check-label"><input id="playground-stream" type="checkbox" checked> Stream response</label><span class="muted small">No prompt content is saved to logs</span></div><button id="playground-submit" type="submit" class="button primary full">Run request <span>↗</span></button></form></section><section class="panel response-panel"><div class="section-heading"><div><h3>Response</h3><p id="response-subtitle">Awaiting request</p></div><button id="copy-response" class="button secondary small-button" disabled>Copy</button></div><div id="playground-response" class="response-content"><div class="response-empty"><div class="response-icon">✳</div><strong>Your response will appear here</strong><span>Requests go through the same API endpoint your coding tools use.</span></div></div></section></div>
+      </section>
+
+      <section id="page-logs" class="page">
+        <div class="page-intro"><div><h2>Request logs</h2><p>Inspect routing outcomes, response times, and provider errors. Prompts are not stored.</p></div><button id="clear-logs-button" class="button secondary danger-quiet">Clear logs</button></div>
+        <section class="panel full-table-panel"><div class="section-heading"><div><h3>Traffic history</h3><p>Most recent 200 records</p></div><button class="icon-button" id="reload-logs" title="Reload logs">↻</button></div><div id="logs-table" class="table-wrap"><div class="loading-state">Loading request logs…</div></div></section>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="page-intro"><div><h2>Gateway settings</h2><p>Connect clients, protect your local setup, and manage its data directory.</p></div><span class="local-badge"><span class="status-dot"></span> No telemetry</span></div>
+        <div class="settings-grid"><section class="panel settings-card"><div class="section-heading"><div><h3>API connection</h3><p>Use these details in compatible tools and scripts.</p></div><span class="settings-icon">⌘</span></div><label>Base URL</label><div class="copy-field"><code id="settings-base-url">http://127.0.0.1:8000/v1</code><button data-copy="base-url" class="copy-button">Copy</button></div><label>Local API key</label><div class="copy-field"><code id="settings-api-key" class="secret-value">Loading…</code><button data-copy="api-key" class="copy-button">Copy</button></div><p class="help-text">Use the API key as a Bearer token. It is separate from the dashboard password.</p><div class="code-example"><div class="code-label">QUICK TEST <button class="copy-button" data-copy="curl">Copy</button></div><pre id="settings-curl">curl http://127.0.0.1:8000/v1/models \
+  -H "Authorization: Bearer YOUR_LOCAL_API_KEY"</pre></div></section><section class="panel settings-card"><div class="section-heading"><div><h3>Security & storage</h3><p>Where your settings live.</p></div><span class="settings-icon green">♧</span></div><div class="security-list"><div><span class="security-check">✓</span><span><strong>Loopback-only listener</strong><small>Bound to 127.0.0.1 by default.</small></span></div><div><span class="security-check">✓</span><span><strong>Encrypted provider keys</strong><small>Fernet encryption key stored locally, separate from SQLite.</small></span></div><div><span class="security-check">✓</span><span><strong>Private request logs</strong><small>Metadata only; no prompts or responses stored.</small></span></div><div><span class="security-check">✓</span><span><strong>No external dashboard assets</strong><small>No analytics, remote fonts, or tracking scripts.</small></span></div></div><div class="notice warning"><span>!</span><p>Do not expose this app to the public internet. Use only provider APIs and endpoints you are authorized to access. Free tiers can have changing limits or usage terms.</p></div></section></div>
+      </section>
+      <footer class="app-footer"><span>Built for your machine <span class="footer-spark">✦</span></span><span>MosaicRoute · Open source local AI gateway</span></footer>
+    </div>
+  </div>
+
+  <div id="modal-backdrop" class="modal-backdrop hidden" role="presentation">
+    <section class="modal glass-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-heading"><div><div class="eyebrow">CONFIGURATION</div><h2 id="modal-title">Add provider</h2><p id="modal-description">Connect an upstream AI endpoint.</p></div><button id="modal-close" class="icon-button" aria-label="Close dialog">×</button></div>
+      <form id="provider-form" class="stack-form hidden"><input type="hidden" id="provider-id"><label for="provider-preset">Quick template</label><select id="provider-preset"><option value="custom">Custom endpoint</option></select><span class="field-hint" id="provider-preset-note">Templates fill in the endpoint and discovery hints. Model-list availability, free tiers, and auth rules are controlled by upstream providers.</span><label for="provider-name">Provider name</label><input id="provider-name" maxlength="80" required placeholder="e.g. Local Ollama"><label for="provider-url">Base URL</label><input id="provider-url" type="url" required placeholder="http://127.0.0.1:11434/v1"><span class="field-hint">Include the API prefix if your provider uses one, such as <code>/v1</code>.</span><label for="provider-models-path">Model discovery path</label><input id="provider-models-path" maxlength="180" value="/models" required placeholder="/models"><label for="provider-models-path-mode">Discovery path starts from</label><select id="provider-models-path-mode"><option value="base">Base URL prefix (default)</option><option value="host">Host root (for provider-specific paths)</option></select><span class="field-hint">Default requests <code>{base URL}/models</code>. Choose host root only when the provider documents a separate model-list path.</span><label for="provider-protocol">API protocol</label><select id="provider-protocol"><option value="openai">OpenAI-compatible (chat / Responses)</option><option value="anthropic">Anthropic Messages API</option></select><label for="provider-auth-type">Authentication method</label><select id="provider-auth-type"><option value="auto">Auto (Bearer for OpenAI; x-api-key for Anthropic)</option><option value="none">No authentication</option><option value="bearer">Bearer API token</option><option value="api_key">API key in a configurable header</option><option value="session">Session / access token in a header</option><option value="cookie">Cookie header (manual, authorized endpoint only)</option><option value="custom_header">Custom credential header</option><option value="custom_headers">Custom headers JSON</option><option value="oauth2">OAuth 2.0 authorization-code + PKCE</option></select><div id="provider-auth-header-fields" class="auth-extra-fields"><label for="provider-auth-header">Credential header name</label><input id="provider-auth-header" maxlength="128" placeholder="e.g. x-api-key or Authorization"><label for="provider-auth-prefix">Header prefix</label><input id="provider-auth-prefix" maxlength="80" placeholder="e.g. Bearer (leave blank for raw value)"></div><label for="provider-key" id="provider-key-label">API key / credential <span class="muted small">(optional for local endpoints)</span></label><input id="provider-key" type="password" autocomplete="off" placeholder="Paste the key, access token, session token, or cookie header"><span class="field-hint" id="provider-key-hint">Secrets are encrypted locally; credentials are never returned to the dashboard.</span><label for="provider-custom-headers">Additional headers (optional JSON)</label><textarea id="provider-custom-headers" rows="3" spellcheck="false" placeholder='{"HTTP-Referer":"http://localhost","X-Title":"MosaicRoute"}'></textarea><span class="field-hint">Leave blank to keep saved headers while editing. Header values are stored encrypted.</span><div id="provider-oauth-fields" class="auth-extra-fields hidden"><div class="notice warning"><span>!</span><p>OAuth uses the provider's standard authorization-code + PKCE flow. Register the exact redirect URI shown after saving this provider. This does not implement proprietary website-session or subscription APIs.</p></div><label for="oauth-authorize-url">Authorization URL</label><input id="oauth-authorize-url" type="url" placeholder="https://provider.example/oauth/authorize"><label for="oauth-token-url">Token URL</label><input id="oauth-token-url" type="url" placeholder="https://provider.example/oauth/token"><label for="oauth-client-id">OAuth client ID</label><input id="oauth-client-id" autocomplete="off" placeholder="Client ID from provider app registration"><label for="oauth-client-secret">OAuth client secret (if required)</label><input id="oauth-client-secret" type="password" autocomplete="off" placeholder="Leave blank if public PKCE client or to keep saved secret"><label for="oauth-scopes">Scopes (space-separated)</label><input id="oauth-scopes" placeholder="openid profile offline_access"><label for="oauth-auth-method">Token endpoint client authentication</label><select id="oauth-auth-method"><option value="client_secret_post">Client secret in POST body</option><option value="client_secret_basic">HTTP Basic client authentication</option><option value="none">Public client (no client secret)</option></select><span class="field-hint">OAuth providers must permit a local redirect URI, and some do not support generic third-party OAuth clients.</span></div><section class="quota-config"><div><strong>Local quota guardrails</strong><span class="field-hint">Optional provider-wide caps; 0 means not configured. Actual provider limits always apply too.</span></div><div class="quota-grid"><label for="provider-rpm-limit">Requests / minute<input id="provider-rpm-limit" type="number" min="0" max="100000" value="0"></label><label for="provider-rpd-limit">Requests / UTC day<input id="provider-rpd-limit" type="number" min="0" max="10000000" value="0"></label><label for="provider-tpm-limit">Estimated tokens / minute<input id="provider-tpm-limit" type="number" min="0" max="1000000000" value="0"></label><label for="provider-tpd-limit">Estimated tokens / UTC day<input id="provider-tpd-limit" type="number" min="0" max="10000000000" value="0"></label><label for="provider-concurrency-limit">Max concurrent requests<input id="provider-concurrency-limit" type="number" min="0" max="10000" value="0"></label></div><span class="field-hint">Token caps reserve an estimate before dispatch and reconcile with upstream usage when available. Configure conservatively.</span></section><label class="check-label"><input type="checkbox" id="provider-active" checked> Provider enabled</label><div class="modal-actions"><button type="button" class="button secondary" id="provider-cancel">Cancel</button><button type="submit" class="button primary" id="provider-save">Save provider</button></div></form>
+      <form id="route-form" class="stack-form hidden"><label for="route-alias">Alias name</label><input id="route-alias" maxlength="120" required placeholder="e.g. auto, coding, fast"><span class="field-hint">Use the alias in your coding agent instead of a provider-specific model ID.</span><label for="route-strategy">Routing strategy</label><select id="route-strategy"><option value="balanced">Best balanced (success history + latency)</option><option value="reliable">Most reliable</option><option value="fastest">Fastest observed</option><option value="cheapest">Lowest known cost</option><option value="round_robin">Round robin distribution</option><option value="priority">Manual order only</option></select><span class="field-hint">Ranking learns from local provider tests and routed requests. New candidates receive exploratory health probes before settled rankings dominate.</span><div class="candidate-heading"><div><strong>Fallback candidates</strong><span class="field-hint">Order matters — first candidate is preferred.</span></div><button type="button" id="add-candidate-button" class="button secondary small-button">+ Add fallback</button></div><div id="candidate-list" class="candidate-list"></div><div class="modal-actions"><button type="button" class="button secondary" id="route-cancel">Cancel</button><button type="submit" class="button primary" id="route-save">Save alias</button></div></form>
+      <div id="modal-message" class="form-error hidden"></div>
+    </section>
+  </div>
+</body>
+</html>

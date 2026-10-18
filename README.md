@@ -10,7 +10,7 @@
   <a href="#-features">Features</a> •
   <a href="#-architecture">Architecture</a> •
   <a href="#-supported-providers">112+ Providers</a> •
-  <a href="#-live-gui-previews">UI Screenshots</a> •
+  <a href="#-live-gui-previews">UI Previews & Video</a> •
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-api-endpoints">API Reference</a>
 </p>
@@ -26,55 +26,59 @@
 
 ---
 
-## 🎬 Live GUI Previews & Screenshots
+## 🎬 Live GUI Walkthrough & Video Demo
 
 > *Streamline all your coding agents (Cursor, Claude Dev, Roo Code, Aider, Continue) and chat apps through one lightning-fast local base URL with intelligent automatic failover.*
 
-### 🖥️ Dashboard Overview
+### 🎥 End-to-End Walkthrough (MP4 Video)
+<div align="center">
+  <video src="media/videos/demo-walkthrough.mp4" controls autoplay muted loop width="100%"></video>
+  <p><em>Automated walkthrough showing login, dashboard overview, provider presets, model discovery, playground, request telemetry, and gateway settings.</em></p>
+</div>
+
+---
+
+## 🖥️ UI Screenshots
+
+### Dashboard Overview
 <div align="center">
   <img src="media/images/dashboard.png" alt="MosaicRoute Dashboard Overview" width="90%">
 </div>
 
 ---
 
-### ⇄ Provider Connections & Presets
+### Provider Connections & Presets
 <div align="center">
   <img src="media/images/providers.png" alt="MosaicRoute Providers" width="90%">
 </div>
 
 ---
 
-### ⌘ Model Aliases & Auto Discovery
+### Model Aliases & Auto Discovery
 <div align="center">
   <img src="media/images/models.png" alt="MosaicRoute Models & Aliases" width="90%">
 </div>
 
 ---
 
-### ✳️ AI Playground & Testing
+### AI Playground & Testing
 <div align="center">
   <img src="media/images/playground.png" alt="MosaicRoute Playground" width="90%">
 </div>
 
 ---
 
-### ≋ Request Logs & Telemetry
+### Request Logs & Telemetry
 <div align="center">
   <img src="media/images/logs.png" alt="MosaicRoute Request Logs" width="90%">
 </div>
 
 ---
 
-### ⚙️ Gateway Settings & Local API Key
+### Gateway Settings & Local API Key
 <div align="center">
   <img src="media/images/settings.png" alt="MosaicRoute Settings" width="90%">
 </div>
-
----
-
-### 🎥 Video Walkthrough Recording
-You can watch the full automated end-to-end GUI navigation and feature walkthrough recording:
-👉 **[Watch Demo Recording (WebM)](media/videos/demo-walkthrough.webm)**
 
 ---
 

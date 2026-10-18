@@ -10,7 +10,8 @@
   <a href="#-features">Features</a> •
   <a href="#-architecture">Architecture</a> •
   <a href="#-supported-providers">112+ Providers</a> •
-  <a href="#-live-gui-previews">UI Previews & Video</a> •
+  <a href="#-live-gui-walkthrough--video-demo">Video Walkthrough</a> •
+  <a href="#-ui-screenshots">UI Screenshots</a> •
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-api-endpoints">API Reference</a>
 </p>
@@ -30,10 +31,16 @@
 
 > *Streamline all your coding agents (Cursor, Claude Dev, Roo Code, Aider, Continue) and chat apps through one lightning-fast local base URL with intelligent automatic failover.*
 
-### 🎥 End-to-End Walkthrough (MP4 Video)
 <div align="center">
-  <video src="media/videos/demo-walkthrough.mp4" controls autoplay muted loop width="100%"></video>
-  <p><em>Automated walkthrough showing login, dashboard overview, provider presets, model discovery, playground, request telemetry, and gateway settings.</em></p>
+  <img src="media/videos/demo-walkthrough.gif" alt="MosaicRoute GUI Video Walkthrough" width="100%">
+  <p>
+    <em>Full automated walkthrough demonstrating login, dashboard metrics, 112+ provider presets, model discovery, interactive playground, request logs, and backup & recovery.</em>
+  </p>
+  <p>
+    <a href="https://github.com/Arhan-w/MosaicRoute/raw/master/media/videos/demo-walkthrough.mp4">
+      <img src="https://img.shields.io/badge/Download%20HD%20MP4%20Video-E02424?style=for-the-badge&logo=video&logoColor=white" alt="Download MP4">
+    </a>
+  </p>
 </div>
 
 ---
@@ -75,7 +82,7 @@
 
 ---
 
-### Gateway Settings & Local API Key
+### Gateway Settings, Command Palette & Backup Recovery
 <div align="center">
   <img src="media/images/settings.png" alt="MosaicRoute Settings" width="90%">
 </div>
@@ -113,7 +120,10 @@ graph TD
 ## 🚀 Key Features
 
 - **⚡ 112+ Built-in Provider Presets:** Instant configuration templates for official APIs, fast inference providers, cloud enterprises, and local runtimes (`config/provider_catalog.json`).
+- **⌨️ Keyboard Command Palette (`Ctrl+K` / `Cmd+K`):** Fast keyboard-driven navigation and actions anywhere in the web GUI.
 - **🔄 Health-Aware Smart Routing:** Strategies including *Balanced* (success rate + latency history), *Most Reliable*, *Fastest Observed*, *Lowest Known Price*, *Round Robin*, and *Manual Priority*.
+- **🛡️ Circuit Breakers & Cooldowns:** Live provider cooldown and error monitoring (`/api/circuit-breakers`).
+- **💾 Backup & Disaster Recovery:** One-click portable JSON export/import of all providers, encrypted keys, and aliases (`/api/backup` & `/api/restore`).
 - **🛡️ Resilient Automatic Fallback:** Seamlessly retries transient upstream failures (`408`, `429`, `502`, `503`, `504` and auth drops) with exponential backoff and provider cooldowns.
 - **🧬 Auto Model Discovery:** Scheduled and on-save model discovery that populates `/v1/models` without manual alias creation.
 - **🎯 Generated Smart Aliases:** Auto-routes like `auto`, `auto/coding`, `auto/fast`, `auto/cheap`, `auto/free`, `auto/offline`, `auto/vision`, and `auto/long-context`.

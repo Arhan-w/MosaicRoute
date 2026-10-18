@@ -1835,6 +1835,57 @@ async def analytics(window_hours: int = 24) -> dict[str, Any]:
             "models": sorted([{"name": name, **v} for name, v in by_model.items()], key=lambda x: x["requests"], reverse=True)}
 
 
+
+
+@admin.get("/circuit-breakers")
+async def circuit_breakers() -> list[dict[str, Any]]:
+    with db() as conn:
+        rows = conn.execute("""
+            SELECT p.id, p.name, p.is_active, p.failure_count, p.cooldown_until,
+                   COALESCE(m.successes, 0) successes, COALESCE(m.failures, 0) failures, COALESCE(m.avg_latency_ms, 0) avg_latency_ms
+            FROM providers p LEFT JOIN provider_metrics m ON m.provider_id = p.id
+            ORDER BY p.name COLLATE NOCASE
+        """).fetchall()
+    now = time.time()
+    result = []
+    for row in rows:
+        d = dict(row)
+        cooldown_rem = max(0.0, float(d["cooldown_until"] or 0) - now)
+        d["cooldown_remaining_seconds"] = round(cooldown_rem, 1)
+        d["status"] = "tripped" if cooldown_rem > 0 else ("inactive" if not d["is_active"] else "healthy")
+        result.append(d)
+    return result
+
+
+@admin.get("/backup")
+async def export_backup() -> dict[str, Any]:
+    with db() as conn:
+        providers = [dict(r) for r in conn.execute("SELECT * FROM providers").fetchall()]
+        routes = [dict(r) for r in conn.execute("SELECT * FROM model_routes").fetchall()]
+    return {"version": APP_VERSION, "exported_at": utc_now(), "providers": providers, "model_routes": routes}
+
+
+@admin.post("/restore")
+async def restore_backup(payload: dict[str, Any]) -> dict[str, Any]:
+    providers = payload.get("providers", [])
+    routes = payload.get("model_routes", [])
+    if not isinstance(providers, list) or not isinstance(routes, list):
+        raise HTTPException(400, "Invalid backup format: providers and model_routes must be lists.")
+    with db() as conn:
+        conn.execute("DELETE FROM providers")
+        conn.execute("DELETE FROM model_routes")
+        for p in providers:
+            conn.execute("""
+                INSERT INTO providers(id, name, base_url, models_path, models_path_mode, api_key_enc, protocol, auth_type, auth_header, auth_prefix, custom_headers_enc, oauth_config_enc, is_active, failure_count, cooldown_until, rpm_limit, rpd_limit, tpm_limit, tpd_limit, max_concurrency, created_at)
+                VALUES(:id, :name, :base_url, :models_path, :models_path_mode, :api_key_enc, :protocol, :auth_type, :auth_header, :auth_prefix, :custom_headers_enc, :oauth_config_enc, :is_active, :failure_count, :cooldown_until, :rpm_limit, :rpd_limit, :tpm_limit, :tpd_limit, :max_concurrency, :created_at)
+            """, p)
+        for r in routes:
+            conn.execute("""
+                INSERT INTO model_routes(id, alias, candidates_json, strategy, is_auto_generated, created_at)
+                VALUES(:id, :alias, :candidates_json, :strategy, :is_auto_generated, :created_at)
+            """, r)
+    return {"ok": True, "restored_providers": len(providers), "restored_routes": len(routes)}
+
 app.include_router(admin)
 
 
@@ -2147,6 +2198,30 @@ async def responses(request: Request):
 @app.post("/v1/messages")
 async def anthropic_messages(request: Request):
     return await route_request(request, "messages", "anthropic")
+
+@app.get("/v1/models/{model_id:path}")
+async def openai_model_detail(request: Request, model_id: str):
+    try:
+        verify_local_key(request)
+    except HTTPException as exc:
+        detail = exc.detail if isinstance(exc.detail, dict) else {"error": {"type": "unauthorized", "message": str(exc.detail)}}
+        return JSONResponse(status_code=exc.status_code, content=detail)
+    with db() as conn:
+        route = conn.execute("SELECT alias,created_at FROM model_routes WHERE alias = ?", (model_id,)).fetchone()
+        discovered = conn.execute("""SELECT dm.model_id,p.name provider_name,dm.discovered_at,dm.metadata_json
+            FROM discovered_models dm JOIN providers p ON p.id=dm.provider_id
+            WHERE dm.model_id=? AND dm.is_available=1 AND p.is_active=1 LIMIT 1""", (model_id,)).fetchone()
+    if route:
+        return {"id": route["alias"], "object": "model", "created": int(datetime.fromisoformat(route["created_at"]).timestamp()), "owned_by": "mosaicroute"}
+    if discovered:
+        return {"id": discovered["model_id"], "object": "model", "created": int(datetime.fromisoformat(discovered["discovered_at"]).timestamp()), "owned_by": discovered["provider_name"], "metadata": json.loads(discovered["metadata_json"] or "{}")}
+    return api_error(404, "not_found", f"Model '{model_id}' not found.")
+
+
+@app.post("/v1/audio/transcriptions")
+async def audio_transcriptions(request: Request):
+    return await route_request(request, "audio/transcriptions", "openai")
+
 
 
 # Static assets are mounted before the direct-run entry point so `python app.py`

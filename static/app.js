@@ -573,4 +573,116 @@ document.querySelectorAll('[data-copy]').forEach(button => button.addEventListen
   catch { toast('Clipboard access was blocked by your browser.', 'error'); }
 }));
 
+
+// Backup & Restore handlers
+const downloadBackupBtn = $('download-backup-button');
+if (downloadBackupBtn) {
+  downloadBackupBtn.addEventListener('click', async () => {
+    try {
+      const data = await api('/api/backup');
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mosaicroute-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast('Backup exported successfully');
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  });
+}
+
+const restoreBackupInput = $('restore-backup-input');
+if (restoreBackupInput) {
+  restoreBackupInput.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      if (!window.confirm(`Restore configuration from "${file.name}"? This replaces current providers and model aliases.`)) {
+        restoreBackupInput.value = '';
+        return;
+      }
+      const res = await api('/api/restore', { method: 'POST', body: JSON.stringify(payload) });
+      toast(`Restored ${res.restored_providers} providers and ${res.restored_routes} routes`);
+      await loadEverything();
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      restoreBackupInput.value = '';
+    }
+  });
+}
+
+// Command Palette (Ctrl+K / Cmd+K)
+const cmdPalette = $('cmd-palette-backdrop');
+const cmdInput = $('cmd-palette-input');
+const cmdResults = $('cmd-palette-results');
+
+const commands = [
+  { title: 'Go to Overview', icon: '◫', action: () => selectPage('overview') },
+  { title: 'Go to Providers', icon: '⇄', action: () => selectPage('providers') },
+  { title: 'Go to Models & Aliases', icon: '⌘', action: () => selectPage('models') },
+  { title: 'Go to Playground', icon: '✳', action: () => selectPage('playground') },
+  { title: 'Go to Request Logs', icon: '≋', action: () => selectPage('logs') },
+  { title: 'Go to Settings', icon: '⚙', action: () => selectPage('settings') },
+  { title: 'Add New Provider', icon: '+', action: () => { selectPage('providers'); $('add-provider-button').click(); } },
+  { title: 'Discover All Providers', icon: '↻', action: () => { selectPage('models'); $('discover-all-button').click(); } },
+  { title: 'Build Smart Aliases', icon: '✦', action: () => { selectPage('models'); $('create-auto-routes-button').click(); } },
+  { title: 'Clear Request Logs', icon: '✕', action: () => { selectPage('logs'); $('clear-logs-button').click(); } }
+];
+
+function renderCommands(filter = '') {
+  if (!cmdResults) return;
+  cmdResults.innerHTML = '';
+  const filtered = commands.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()));
+  if (filtered.length === 0) {
+    cmdResults.innerHTML = '<div style="padding:10px; color:#94a3b8; font-size:0.9rem;">No matching commands found</div>';
+    return;
+  }
+  filtered.forEach((cmd, idx) => {
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:6px; cursor:pointer; font-size:0.92rem; color:#f1f5f9; transition:background 0.15s;';
+    item.innerHTML = `<span style="opacity:0.7;">${cmd.icon}</span> <span>${escapeHtml(cmd.title)}</span>`;
+    item.addEventListener('mouseenter', () => item.style.background = 'rgba(255,255,255,0.08)');
+    item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+    item.addEventListener('click', () => {
+      cmdPalette.classList.add('hidden');
+      cmd.action();
+    });
+    cmdResults.appendChild(item);
+  });
+}
+
+window.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (cmdPalette) {
+      cmdPalette.classList.toggle('hidden');
+      if (!cmdPalette.classList.contains('hidden')) {
+        cmdInput.value = '';
+        renderCommands('');
+        cmdInput.focus();
+      }
+    }
+  } else if (e.key === 'Escape' && cmdPalette && !cmdPalette.classList.contains('hidden')) {
+    cmdPalette.classList.add('hidden');
+  }
+});
+
+if (cmdInput) {
+  cmdInput.addEventListener('input', () => renderCommands(cmdInput.value));
+}
+
+if (cmdPalette) {
+  cmdPalette.addEventListener('click', (e) => {
+    if (e.target === cmdPalette) cmdPalette.classList.add('hidden');
+  });
+}
+
 checkSession();

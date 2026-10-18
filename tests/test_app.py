@@ -821,3 +821,52 @@ def test_discovery_page_cap_is_configurable_and_preserves_catalog(signed_client,
     assert response.json()["status"] == 413
     assert response.json()["pages"] == 1
     assert signed_client.get(f"/api/discovery/models?provider_id={provider_id}").json() == []
+
+
+
+def test_circuit_breakers_endpoint(signed_client):
+    provider_id = add_provider(signed_client, "Breaker-Provider")
+    breakers = signed_client.get("/api/circuit-breakers")
+    assert breakers.status_code == 200
+    items = breakers.json()
+    assert any(b["id"] == provider_id and b["status"] == "healthy" for b in items)
+
+
+def test_backup_and_restore_cycle(signed_client):
+    provider_id = add_provider(signed_client, "Backup-Test-Provider")
+    backup_resp = signed_client.get("/api/backup")
+    assert backup_resp.status_code == 200
+    backup_data = backup_resp.json()
+    assert "providers" in backup_data and "model_routes" in backup_data
+    assert any(p["id"] == provider_id for p in backup_data["providers"])
+
+    # Test restoring
+    restore_resp = signed_client.post("/api/restore", json=backup_data)
+    assert restore_resp.status_code == 200
+    assert restore_resp.json()["ok"] is True
+    assert restore_resp.json()["restored_providers"] == len(backup_data["providers"])
+
+
+def test_model_detail_endpoint(signed_client):
+    provider_id = add_provider(signed_client, "Detail-Provider")
+    signed_client.post("/api/models", json={
+        "alias": "custom-detail-model",
+        "candidates": [{"provider_id": provider_id, "upstream_model": "mock-detail"}]
+    })
+    
+    # Authorized detail check
+    resp = signed_client.get(
+        "/v1/models/custom-detail-model",
+        headers={"Authorization": f"Bearer {mosaic.LOCAL_API_KEY}"}
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["id"] == "custom-detail-model"
+    assert data["owned_by"] == "mosaicroute"
+
+    # Non-existent model detail check
+    not_found = signed_client.get(
+        "/v1/models/non-existent-xyz",
+        headers={"Authorization": f"Bearer {mosaic.LOCAL_API_KEY}"}
+    )
+    assert not_found.status_code == 404

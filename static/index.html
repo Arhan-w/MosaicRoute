@@ -94,7 +94,23 @@
 
       <section id="page-playground" class="page">
         <div class="page-intro"><div><h2>Playground</h2><p>Send a real request through your local route and inspect the response.</p></div><span class="protocol-chip">POST /v1/chat/completions</span></div>
-        <div class="playground-layout"><section class="panel playground-form"><div class="section-heading"><div><h3>Compose request</h3><p>Uses your configured model alias.</p></div><span class="tiny-label">LIVE ROUTING</span></div><form id="playground-form" class="stack-form"><label for="playground-model">Model alias</label><select id="playground-model" required><option value="">Create a model alias first</option></select><label for="playground-prompt">Your prompt</label><textarea id="playground-prompt" rows="8" required placeholder="Ask a question, request code, or test provider behavior…">Explain what an API gateway does in three concise bullet points.</textarea><div class="form-row"><label class="check-label"><input id="playground-stream" type="checkbox" checked> Stream response</label><span class="muted small">No prompt content is saved to logs</span></div><button id="playground-submit" type="submit" class="button primary full">Run request <span>↗</span></button></form></section><section class="panel response-panel"><div class="section-heading"><div><h3>Response</h3><p id="response-subtitle">Awaiting request</p></div><button id="copy-response" class="button secondary small-button" disabled>Copy</button></div><div id="playground-response" class="response-content"><div class="response-empty"><div class="response-icon">✳</div><strong>Your response will appear here</strong><span>Requests go through the same API endpoint your coding tools use.</span></div></div></section></div>
+        <div class="playground-layout"><section class="panel playground-form"><div class="section-heading"><div><h3>Compose request</h3><p>Uses your configured model alias.</p></div><span class="tiny-label">LIVE ROUTING</span></div><form id="playground-form" class="stack-form"><label for="playground-model">Model alias</label><select id="playground-model" required><option value="">Create a model alias first</option></select><label for="playground-prompt">Your prompt</label><textarea id="playground-prompt" rows="8" required placeholder="Ask a question, request code, or test provider behavior…">Explain what an API gateway does in three concise bullet points.</textarea><div class="form-row"><label class="check-label"><input id="playground-stream" type="checkbox" checked> Stream response</label><span class="muted small">No prompt content is saved to logs</span></div><button id="playground-submit" type="submit" class="button primary full">Run request <span>↗</span></button></form></section><section class="panel response-panel"><div class="section-heading"><div><h3>Response</h3><p id="response-subtitle">Awaiting request</p></div><button id="copy-response" class="button secondary small-button" disabled>Copy</button></div><div id="playground-response" class="response-content"><div class="response-empty"><div class="response-icon">✳</div><strong>Your response will appear here</strong><span>Requests go through the same API endpoint your coding tools use.</span></div></div></section>
+        <section class="panel settings-card">
+          <div class="section-heading">
+            <div><h3>Backup & Recovery</h3><p>Export or restore full configuration.</p></div>
+            <span class="settings-icon">⚡</span>
+          </div>
+          <p class="help-text">Export your providers, custom credentials, and routing aliases into a JSON backup file, or restore an existing one.</p>
+          <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+            <button id="download-backup-button" class="button secondary">⬇ Export Backup</button>
+            <label class="button secondary" style="cursor:pointer; display:inline-flex; align-items:center;">
+              ⬆ Restore Backup
+              <input id="restore-backup-input" type="file" accept=".json" style="display:none;">
+            </label>
+          </div>
+          <p id="backup-status" class="field-hint" style="margin-top:8px;"></p>
+        </section>
+</div>
       </section>
 
       <section id="page-logs" class="page">
@@ -105,7 +121,23 @@
       <section id="page-settings" class="page">
         <div class="page-intro"><div><h2>Gateway settings</h2><p>Connect clients, protect your local setup, and manage its data directory.</p></div><span class="local-badge"><span class="status-dot"></span> No telemetry</span></div>
         <div class="settings-grid"><section class="panel settings-card"><div class="section-heading"><div><h3>API connection</h3><p>Use these details in compatible tools and scripts.</p></div><span class="settings-icon">⌘</span></div><label>Base URL</label><div class="copy-field"><code id="settings-base-url">http://127.0.0.1:8000/v1</code><button data-copy="base-url" class="copy-button">Copy</button></div><label>Local API key</label><div class="copy-field"><code id="settings-api-key" class="secret-value">Loading…</code><button data-copy="api-key" class="copy-button">Copy</button></div><p class="help-text">Use the API key as a Bearer token. It is separate from the dashboard password.</p><div class="code-example"><div class="code-label">QUICK TEST <button class="copy-button" data-copy="curl">Copy</button></div><pre id="settings-curl">curl http://127.0.0.1:8000/v1/models \
-  -H "Authorization: Bearer YOUR_LOCAL_API_KEY"</pre></div></section><section class="panel settings-card"><div class="section-heading"><div><h3>Security & storage</h3><p>Where your settings live.</p></div><span class="settings-icon green">♧</span></div><div class="security-list"><div><span class="security-check">✓</span><span><strong>Loopback-only listener</strong><small>Bound to 127.0.0.1 by default.</small></span></div><div><span class="security-check">✓</span><span><strong>Encrypted provider keys</strong><small>Fernet encryption key stored locally, separate from SQLite.</small></span></div><div><span class="security-check">✓</span><span><strong>Private request logs</strong><small>Metadata only; no prompts or responses stored.</small></span></div><div><span class="security-check">✓</span><span><strong>No external dashboard assets</strong><small>No analytics, remote fonts, or tracking scripts.</small></span></div></div><div class="notice warning"><span>!</span><p>Do not expose this app to the public internet. Use only provider APIs and endpoints you are authorized to access. Free tiers can have changing limits or usage terms.</p></div></section></div>
+  -H "Authorization: Bearer YOUR_LOCAL_API_KEY"</pre></div></section><section class="panel settings-card"><div class="section-heading"><div><h3>Security & storage</h3><p>Where your settings live.</p></div><span class="settings-icon green">♧</span></div><div class="security-list"><div><span class="security-check">✓</span><span><strong>Loopback-only listener</strong><small>Bound to 127.0.0.1 by default.</small></span></div><div><span class="security-check">✓</span><span><strong>Encrypted provider keys</strong><small>Fernet encryption key stored locally, separate from SQLite.</small></span></div><div><span class="security-check">✓</span><span><strong>Private request logs</strong><small>Metadata only; no prompts or responses stored.</small></span></div><div><span class="security-check">✓</span><span><strong>No external dashboard assets</strong><small>No analytics, remote fonts, or tracking scripts.</small></span></div></div><div class="notice warning"><span>!</span><p>Do not expose this app to the public internet. Use only provider APIs and endpoints you are authorized to access. Free tiers can have changing limits or usage terms.</p></div></section>
+        <section class="panel settings-card">
+          <div class="section-heading">
+            <div><h3>Backup & Recovery</h3><p>Export or restore full configuration.</p></div>
+            <span class="settings-icon">⚡</span>
+          </div>
+          <p class="help-text">Export your providers, custom credentials, and routing aliases into a JSON backup file, or restore an existing one.</p>
+          <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+            <button id="download-backup-button" class="button secondary">⬇ Export Backup</button>
+            <label class="button secondary" style="cursor:pointer; display:inline-flex; align-items:center;">
+              ⬆ Restore Backup
+              <input id="restore-backup-input" type="file" accept=".json" style="display:none;">
+            </label>
+          </div>
+          <p id="backup-status" class="field-hint" style="margin-top:8px;"></p>
+        </section>
+</div>
       </section>
       <footer class="app-footer"><span>Built for your machine <span class="footer-spark">✦</span></span><span>MosaicRoute · Open source local AI gateway</span></footer>
     </div>
@@ -119,5 +151,18 @@
       <div id="modal-message" class="form-error hidden"></div>
     </section>
   </div>
+
+  <div id="cmd-palette-backdrop" class="modal-backdrop hidden" role="presentation" style="z-index:9999;">
+    <div class="modal glass-panel" style="max-width:540px; padding:18px;" role="dialog" aria-modal="true">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+        <span style="font-size:1.2rem; color:#a78bfa;">⌘</span>
+        <input id="cmd-palette-input" type="text" placeholder="Type a command or jump to page... (ESC to close)" style="flex:1; background:transparent; border:none; color:#f8fafc; font-size:1rem; outline:none;">
+        <span class="tiny-label" style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:0.75rem;">ESC</span>
+      </div>
+      <div id="cmd-palette-results" style="display:flex; flex-direction:column; gap:4px; max-height:280px; overflow-y:auto;">
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

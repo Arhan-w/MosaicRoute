@@ -1,6 +1,6 @@
-﻿<div align="center">
-
 # 🌐 MosaicRoute
+
+<div align="center">
 
 <p align="center">
   <strong>Your Ultimate Local-First AI Gateway & Universal Model Router</strong>
@@ -10,9 +10,9 @@
   <a href="#-features">Features</a> •
   <a href="#-architecture">Architecture</a> •
   <a href="#-supported-providers">112+ Providers</a> •
+  <a href="#-live-gui-previews">UI Screenshots</a> •
   <a href="#-quick-start">Quick Start</a> •
-  <a href="#-api-endpoints">API Reference</a> •
-  <a href="#-documentation">Docs</a>
+  <a href="#-api-endpoints">API Reference</a>
 </p>
 
 <p align="center">
@@ -26,23 +26,55 @@
 
 ---
 
-## 🎬 Live Demo & Preview
+## 🎬 Live GUI Previews & Screenshots
 
 > *Streamline all your coding agents (Cursor, Claude Dev, Roo Code, Aider, Continue) and chat apps through one lightning-fast local base URL with intelligent automatic failover.*
 
+### 🖥️ Dashboard Overview
 <div align="center">
-
-### 🖥️ Dashboard Control Center
-![MosaicRoute Dashboard](https://raw.githubusercontent.com/Arhan-w/MosaicRoute/master/media/images/dashboard.png)
-
-### 🗺️ Interactive Routing & Model Playground
-![MosaicRoute Playground](https://raw.githubusercontent.com/Arhan-w/MosaicRoute/master/media/images/map-interface.png)
-
-### 🎥 Watch the 60-Second Walkthrough
-[![MosaicRoute Demo Video](https://img.shields.io/badge/▶_Play_Video_Walkthrough-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
-*(Click above to watch the end-to-end setup and failover demonstration)*
-
+  <img src="media/images/dashboard.png" alt="MosaicRoute Dashboard Overview" width="90%">
 </div>
+
+---
+
+### ⇄ Provider Connections & Presets
+<div align="center">
+  <img src="media/images/providers.png" alt="MosaicRoute Providers" width="90%">
+</div>
+
+---
+
+### ⌘ Model Aliases & Auto Discovery
+<div align="center">
+  <img src="media/images/models.png" alt="MosaicRoute Models & Aliases" width="90%">
+</div>
+
+---
+
+### ✳️ AI Playground & Testing
+<div align="center">
+  <img src="media/images/playground.png" alt="MosaicRoute Playground" width="90%">
+</div>
+
+---
+
+### ≋ Request Logs & Telemetry
+<div align="center">
+  <img src="media/images/logs.png" alt="MosaicRoute Request Logs" width="90%">
+</div>
+
+---
+
+### ⚙️ Gateway Settings & Local API Key
+<div align="center">
+  <img src="media/images/settings.png" alt="MosaicRoute Settings" width="90%">
+</div>
+
+---
+
+### 🎥 Video Walkthrough Recording
+You can watch the full automated end-to-end GUI navigation and feature walkthrough recording:
+👉 **[Watch Demo Recording (WebM)](media/videos/demo-walkthrough.webm)**
 
 ---
 
@@ -107,14 +139,6 @@ chmod +x install.sh start.sh
 ./start.sh
 ```
 Note the credentials printed in your terminal and open **`http://127.0.0.1:8000`**.
-
----
-
-## ⚙️ Quick Start Guide
-
-1. **Add a Provider:** Navigate to **Providers → Add provider**, pick a preset (e.g. *Ollama*, *DeepSeek*, *OpenRouter*), enter your API key or endpoint URL, and save.
-2. **Discover Models:** Click **Discover all providers** or **Build smart aliases** on the *Models & aliases* page.
-3. **Connect Your Client:** Copy your Base URL (`http://127.0.0.1:8000/v1`) and Local API Key from **Settings** into Cursor, Aider, or Continue.
 
 ---
 
